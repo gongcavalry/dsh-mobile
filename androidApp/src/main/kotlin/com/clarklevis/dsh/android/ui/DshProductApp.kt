@@ -733,6 +733,13 @@ private fun EmptySessions() {
     )
 }
 
+// 会话归属标签：优先工作区标题，其次退回 cwd 末段；与标题相同则不显示，避免重复。
+private fun sessionFolderLabel(session: SessionSummary, folderLabels: Map<String, String>): String? {
+    val label = folderLabels[session.id]
+        ?: session.cwd?.trimEnd('/')?.substringAfterLast('/')?.takeIf { it.isNotEmpty() }
+    return label?.takeIf { it != session.title }
+}
+
 @Composable
 private fun SessionList(
     sessions: List<SessionSummary>,
@@ -752,7 +759,7 @@ private fun SessionList(
                 Box {
                     SessionRow(
                         session,
-                        folderLabel = folderLabels[session.id],
+                        folderLabel = sessionFolderLabel(session, folderLabels),
                         onClick = { onOpen(session.id) },
                         onLongClick = { menuVisible = true })
                     SessionContextMenu(
